@@ -74,7 +74,7 @@ input {
 button {
   width: 100%;
   padding: 0.75rem;
-  background-color: #ff0055;
+  background-color: #55abbc;
   border: none;
   color: white;
   font-weight: bold;
@@ -83,5 +83,25 @@ button {
 }
 
 button:hover {
-  background-color: #e6004c;
+  background-color: #2e6b83;
+}
+
+.pin-field {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+
+.eye-icon {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-75%);
+  cursor: pointer;
+  color: #aaa;
+  transition: color 0.2s;
+}
+
+.eye-icon:hover {
+  color: #fff;
 }
