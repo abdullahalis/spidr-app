@@ -1,1 +1,0 @@
-# spidr-app
