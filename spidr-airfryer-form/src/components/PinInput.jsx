@@ -92,7 +92,7 @@ const PinInput = ({ value = '', onChange, error }) => {
     <div className="pin-field">
       <input
         name="pin"
-        placeholder="1234-5678-9012-3456"
+        placeholder="Secret PIN"
         value={formatted}
         onKeyDown={keyChange}
         onPaste={handlePaste}

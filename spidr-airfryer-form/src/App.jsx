@@ -130,7 +130,7 @@ function App() {
           <input
             name="costGuess"
             type="number"
-            placeholder="Guess the air fryer’s cost (USD)"
+            placeholder="Guess the air fryer cost"
             onChange={handleChange}
             className={error.costGuess ? 'input-error' : ''}
             value={form.costGuess || ''}
