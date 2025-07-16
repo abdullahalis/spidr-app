@@ -1,118 +1,86 @@
 import React, { useState } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 
+// Format function: hides digits with • if show = false, adds dashes every 4 digits
 const formatPin = (str, show) =>
   str
-    .split("")
+    .split('')
     .map((l, i) => {
       if (i === 3 || i === 7 || i === 11) return show ? `${l}-` : '•-';
-      if (!show) return '•';
-      return l;
+      return show ? l : '•';
     })
-    .join("");
+    .join('');
 
-const PinInput = props => {
-  const {
-    value: pin = undefined,
-    onChange = null,
-  } = props;
-  const [text, setText] = useState(pin || "");
+const getRawIndex = (formatted, cursorPos) => {
+  let rawIndex = 0;
+  for (let i = 0; i < cursorPos; i++) {
+    if (formatted[i] !== '-') rawIndex++;
+  }
+  return rawIndex;
+};
+
+const PinInput = ({ value = '', onChange, error }) => {
   const [show, setShow] = useState(false);
-  const value = formatPin(pin === undefined ? text : pin, show);
+  const formatted = formatPin(value, show);
 
-  const update = (name, value) => {
-    setText(value);
-    if (onChange) {
-      onChange({ target: { name, value } });
-    }
+  const update = (name, val) => {
+    onChange?.({ target: { name, value: val } });
   };
-
-  // const keyChange = e => {
-  //   const {
-  //     keyCode,
-  //     key,
-  //     target: { name, selectionStart, selectionEnd, value }
-  //   } = e;
-  //   if ([9, 13].includes(keyCode)) return;
-  //   if (keyCode === 8) {
-  //     if (selectionStart === selectionEnd) {
-  //       return text.length && update(name, text.slice(0, -1));
-  //     }
-  //     else {
-  //       const newText = text.slice(0, selectionStart) + text.slice(selectionEnd);
-  //       return  update(name, newText);
-  //     }
-  //   }
-  //   if (!/^\d+$/.test(key)) return;
-  //   if (text.length === 16) return;
-  //   update(name, text + key);
-  // };
-
-  // Maps the cursor position in formatted string to index in raw digits
-  const getRawIndex = (formatted, cursorPos) => {
-    let rawIndex = 0;
-    for (let i = 0; i < cursorPos; i++) {
-      if (formatted[i] !== '-') {
-        rawIndex++;
-      }
-    }
-    return rawIndex;
-  };
-
 
   const keyChange = (e) => {
     const {
       keyCode,
       key,
-      target: { name, selectionStart, selectionEnd, value }
+      target: { name, selectionStart, selectionEnd }
     } = e;
-    console.log("keyChange", keyCode, key, name, selectionStart, selectionEnd, value);
+
     const isDigit = /^\d$/.test(key);
     const hasSelection = selectionStart !== selectionEnd;
 
-    const rawIndexStart = getRawIndex(value, selectionStart);
-    const rawIndexEnd = getRawIndex(value, selectionEnd);
-    console.log("rawIndexStart", rawIndexStart, "rawIndexEnd", rawIndexEnd);
-    // // ✅ Let Tab (9) and Enter (13) behave normally
-    // if ([9, 13].includes(keyCode)) return;
+    const rawIndexStart = getRawIndex(formatted, selectionStart);
+    const rawIndexEnd = getRawIndex(formatted, selectionEnd);
 
-    // Prevent default browser behavior to keep control
-    // e.preventDefault();
-
-    // Handle backspace
     if (keyCode === 8) {
       if (hasSelection) {
-        const newRaw = text.slice(0, rawIndexStart) + text.slice(rawIndexEnd);
+        const newRaw = value.slice(0, rawIndexStart) + value.slice(rawIndexEnd);
         return update(name, newRaw);
       } else if (rawIndexStart > 0) {
-        const newRaw =
-          text.slice(0, rawIndexStart - 1) + text.slice(rawIndexStart);
+        const newRaw = value.slice(0, rawIndexStart - 1) + value.slice(rawIndexStart);
         return update(name, newRaw);
       }
       return;
     }
 
-    // Handle delete
     if (keyCode === 46) {
       if (hasSelection) {
-        const newRaw = text.slice(0, rawIndexStart) + text.slice(rawIndexEnd);
+        const newRaw = value.slice(0, rawIndexStart) + value.slice(rawIndexEnd);
         return update(name, newRaw);
       } else {
-        const newRaw =
-          text.slice(0, rawIndexStart) + text.slice(rawIndexStart + 1);
+        const newRaw = value.slice(0, rawIndexStart) + value.slice(rawIndexStart + 1);
         return update(name, newRaw);
       }
     }
 
-    // Allow only digits
-    if (!isDigit) return;
+    if (!isDigit || value.length >= 16) return;
 
-    const newRaw =
-      text.slice(0, rawIndexStart) + key + text.slice(rawIndexEnd);
-
+    const newRaw = value.slice(0, rawIndexStart) + key + value.slice(rawIndexEnd);
     if (newRaw.length <= 16) {
       update(name, newRaw);
     }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text');
+    const digitsOnly = pasted.replace(/\D/g, ''); // only digits
+
+    if (!digitsOnly) return;
+
+    // Append to current pin but max length 16
+    const combined = (value || '') + digitsOnly;
+    const newRaw = combined.slice(0, 16);
+
+    update('pin', newRaw);
   };
 
 
@@ -120,17 +88,12 @@ const PinInput = props => {
     <div className="pin-field">
       <input
         name="pin"
-        placeholder="Secret PIN"
-        value={value}
-        onKeyDown = {keyChange}
-        required
+        placeholder="1234-5678-9012-3456"
+        value={formatted}
+        onKeyDown={keyChange}
+        onPaste={handlePaste}
         style={{ letterSpacing: '2px', width: '100%' }}
-        pattern=".{17}"
-        onInvalid={(e) => {
-          // e.preventDefault();
-          e.target.setCustomValidity("Please enter a 16-digit PIN in format 1234-5678-9012-3456");
-        }}
-        onInput={(e) => e.target.setCustomValidity("")}
+        className={error ? 'input-error' : ''}
       />
       <div className="eye-icon" onClick={() => setShow(!show)} style={{ cursor: 'pointer' }}>
         {show ? <FiEye /> : <FiEyeOff />}
@@ -140,4 +103,3 @@ const PinInput = props => {
 };
 
 export default PinInput;
-
