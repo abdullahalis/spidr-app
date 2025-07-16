@@ -11,6 +11,7 @@ const formatPin = (str, show) =>
     })
     .join('');
 
+// Get the raw index of the cursor position in the formatted string
 const getRawIndex = (formatted, cursorPos) => {
   let rawIndex = 0;
   for (let i = 0; i < cursorPos; i++) {
@@ -40,7 +41,7 @@ const PinInput = ({ value = '', onChange, error }) => {
     const rawIndexStart = getRawIndex(formatted, selectionStart);
     const rawIndexEnd = getRawIndex(formatted, selectionEnd);
 
-    if (keyCode === 8) {
+    if (keyCode === 8) { // Backspace
       if (hasSelection) {
         const newRaw = value.slice(0, rawIndexStart) + value.slice(rawIndexEnd);
         return update(name, newRaw);
@@ -51,7 +52,7 @@ const PinInput = ({ value = '', onChange, error }) => {
       return;
     }
 
-    if (keyCode === 46) {
+    if (keyCode === 46) { // Delete
       if (hasSelection) {
         const newRaw = value.slice(0, rawIndexStart) + value.slice(rawIndexEnd);
         return update(name, newRaw);
@@ -61,9 +62,10 @@ const PinInput = ({ value = '', onChange, error }) => {
       }
     }
 
-    if (!isDigit || value.length >= 16) return;
-
-    const newRaw = value.slice(0, rawIndexStart) + key + value.slice(rawIndexEnd);
+    if (!isDigit || value.length >= 16) return; // Ignore non-digit keys and if max length reached
+    
+    // Insert digit at cursor position
+    const newRaw = value.slice(0, rawIndexStart) + key + value.slice(rawIndexEnd); 
     if (newRaw.length <= 16) {
       update(name, newRaw);
     }
@@ -83,6 +85,8 @@ const PinInput = ({ value = '', onChange, error }) => {
     update('pin', newRaw);
   };
 
+  const doNothing = (e) => {
+  };
 
   return (
     <div className="pin-field">
@@ -92,6 +96,7 @@ const PinInput = ({ value = '', onChange, error }) => {
         value={formatted}
         onKeyDown={keyChange}
         onPaste={handlePaste}
+        onChange={doNothing} // KeyChange handles input
         style={{ letterSpacing: '2px', width: '100%' }}
         className={error ? 'input-error' : ''}
       />

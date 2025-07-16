@@ -23,7 +23,6 @@ function App() {
 
   const [formSubmitted, setFormSubmitted] = useState(false);
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
@@ -62,6 +61,7 @@ function App() {
     console.log(form);
     setFormSubmitted(true);
 
+    // Reset form
     setForm({
       firstName: '',
       lastName: '',
@@ -71,6 +71,8 @@ function App() {
       pin: ''
     });
 
+    // reset success after 3 seconds
+    setTimeout(() => setFormSubmitted(false), 3000);
   };
 
   return (
@@ -78,6 +80,8 @@ function App() {
       <div className="form-container">
         <h1>Reserve Your Air Fryer</h1>
         <form onSubmit={handleSubmit}>
+
+          {/* first name */}
           <input 
             type="text" 
             name="firstName" 
@@ -87,7 +91,8 @@ function App() {
             value={form.firstName || ''}
           />
           {error.firstName && <div className="error-message">First name is required</div>}
-
+          
+          {/* last name */}
           <input 
             type="text" 
             name="lastName" 
@@ -98,6 +103,7 @@ function App() {
           />
           {error.lastName && <div className="error-message">Last name is required</div>}
           
+          {/* phone number */}
           <InputMask
             name="phone"
             placeholder="Phone number"
@@ -109,6 +115,7 @@ function App() {
           />
           {error.phone && <div className="error-message">Enter a valid phone number (e.g. (123)-456-7890)</div>}
 
+          {/* email */}
           <input
             name="email"
             type="text"
@@ -119,6 +126,7 @@ function App() {
           />
           {error.email && <div className="error-message">Enter a valid email address</div>}
 
+          {/* cost guess */}
           <input
             name="costGuess"
             type="number"
@@ -128,16 +136,23 @@ function App() {
             value={form.costGuess || ''}
           />
           {error.costGuess && <div className="error-message">Enter a valid price</div>}
-
-          <PinInput onChange={handleChange} error={error.pin} value = {form.pin || ''}/>
+          
+          {/* pin input */}
+          <PinInput 
+            onChange={handleChange} 
+            error={error.pin} 
+            value = {form.pin || ''}
+          />
           {error.pin && <div className="error-message">PIN must be exactly 16 digits (format: 1234-5678-9012-3456)</div>}
-
+          
+          {/* submit button */}
           <button type="submit">Submit</button>
         </form>
       </div>
+      {/* Success message */}
       {formSubmitted && (
         <div className="success-message">
-          🎉 Form submitted successfully!
+          Form submitted
         </div>
       )}
     </div>
