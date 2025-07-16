@@ -80,7 +80,7 @@ function App() {
       <div className="form-container">
         <h1>Reserve Your Air Fryer</h1>
         <form onSubmit={handleSubmit}>
-
+          <div className="inputs-div">
           {/* first name */}
           <input 
             type="text" 
@@ -144,7 +144,7 @@ function App() {
             value = {form.pin || ''}
           />
           {error.pin && <div className="error-message">PIN must be exactly 16 digits (format: 1234-5678-9012-3456)</div>}
-          
+          </div>
           {/* submit button */}
           <button type="submit">Submit</button>
         </form>
